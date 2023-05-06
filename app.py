@@ -76,13 +76,14 @@ def index():
             logits = outputs.logits
 
             predicted_class_id = logits.argmax(-1).item()
-            class_name = model.config.id2label[predicted_class_id]
+            class_name = model.config.id2label[predicted_class_id].split(",")
+            class_name = class_name[0]
         
         except (OSError, ValueError) as e:
             print("An error occurred while processing the image:", e)
             return error("An error occurred while recognizing the image")
         
-        q = class_name[:-1] + " meme"
+        q = class_name + " meme"
         cx = "f6aac2aa50b5f4d75"
         try:
             params = {
@@ -122,9 +123,9 @@ def index():
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# @app.route("/camera")
-# def camera_capture():
-#     return render_template("camera_capture.html")
+@app.route("/camera")
+def camera_capture():
+    return render_template("camera_capture.html")
 
 
 # @app.route("/login", methods=["GET", "POST"])
