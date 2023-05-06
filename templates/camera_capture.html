@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Camera Capture
+{% endblock %}
+
+{% block main %}
+    <div>
+        <video id="video" width="640" height="480" autoplay></video>
+    </div>
+    <div>
+        <button id="capture-btn">Capture</button>
+    </div>
+    <div>
+        <canvas id="canvas" width="640" height="480"></canvas>
+    </div>
+{% endblock %}

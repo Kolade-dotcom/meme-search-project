@@ -1,0 +1,20 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+
+    <div class="container">
+        <form action="/" method="post" enctype="multipart/form-data" id="image-form" onsubmit="sendData(); return false;">
+            <div class="mb-3">
+                <input type="file" name="imageUpload" accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+
+        <div id="form-result"></div>
+    </div>
+    
+{% endblock %}
