@@ -95,14 +95,15 @@
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
             const dataUrl = canvas.toDataURL();
 
-            xhr.open('POST', '/camera', true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onreadystatechange = function() {
-                if (this.readyState === 4 && this.status === 200) {
-                    img.src = this.responseText;
-                }
-            };
-            xhr.send(JSON.stringify({ dataUrl: dataUrl }));
+            console.log(dataUrl);
+            // xhr.open('POST', '/camera', true);
+            // xhr.setRequestHeader('Content-Type', 'application/json');
+            // xhr.onreadystatechange = function() {
+            //     if (this.readyState === 4 && this.status === 200) {
+            //         document.querySelector("#camera-result").innerHTML = this.responseText;
+            //     }
+            // };
+            // xhr.send(JSON.stringify({ dataUrl: dataUrl }));
         });
     </script>
 </body>
