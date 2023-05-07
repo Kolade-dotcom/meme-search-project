@@ -27,10 +27,13 @@
                         <a class="nav-link" href="/login">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/signup">Sign Up</a>
+                        <a class="nav-link" href="/register">Register</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/camera">Camera</a>
                     </li>
                 </ul>
             </div>
@@ -41,9 +44,10 @@
         {% block main %}{% endblock %}
     </main>
 
-    <footer class="py-3 my-4 bg-light">
+    <footer class="pb-3 mb-3 bg-light">
         <ul class="nav justify-content-center border-bottom pb-3 mb-3">
         <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
+        <!-- write code for this later -->
         <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Features</a></li>
         <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Pricing</a></li>
         <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">FAQs</a></li>
@@ -53,9 +57,14 @@
     </footer>
     
     <script>
-        function sendData() {
-            const xhr = new XMLHttpRequest();
-            const formData = new FormData(document.querySelector('#image-form'));
+        // start an ajax request
+        const xhr = new XMLHttpRequest();
+
+        // get the form and make request from "/" on submit of the form
+        const form = document.querySelector('#image-form');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
             xhr.onreadystatechange = function() {
                 if (this.readyState === 4 && this.status === 200) {
                     document.querySelector('#form-result').innerHTML = this.responseText;
@@ -63,27 +72,59 @@
             };
             xhr.open('POST', '/');
             xhr.send(formData);
-        }
+        });
 
-        const video = document.querySelector('#video');
-        const canvas = document.querySelector('#canvas');
-        const captureBtn = document.querySelector('#capture-btn');
+        // Save the stream to sessionStorage when navigating away from the home page
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                sessionStorage.setItem('cameraStream', JSON.stringify(stream));
+            }
+        });
 
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then((stream) => {
+        // get necessary elements for camera capture
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.querySelector('#camera-stream');
+            const captureBtn = document.querySelector('#capture-btn');
+            const canvas = document.querySelector('#canvas');
+
+            if (savedStream) {
+                stream = JSON.parse(savedStream);
+                console.log('Retrieved saved stream:', stream);
                 video.srcObject = stream;
                 video.play();
-            })
-            .catch((err) => {
-                console.error('Error accessing camera:', err);
-            });
+            } else {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                .then((s) => {
+                    console.log(s);
+                    stream = s;
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch((err) => {
+                    console.error('Error accessing camera:', err);
+                    captureBtn.disabled = true;
+                });
+            }
 
-        captureBtn.addEventListener('click', () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-            const dataUrl = canvas.toDataURL();
-            console.log('Captured image:', dataUrl);
+            // draw the current frame from the video element onto a canvas element on capture btn click
+            captureBtn.addEventListener('click', () => {
+                if (stream) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const dataUrl = canvas.toDataURL();
+                    
+                    // send the resulting data url as JSON object to the server and get the response text using a XMLHttpRequest
+                    xhr.open('POST', '/camera', true);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.onreadystatechange = function() {
+                        if (this.readyState === 4 && this.status === 200) {
+                            document.querySelector('#camera-result').innerHTML = this.responseText;
+                        }
+                    };
+                    xhr.send(JSON.stringify({ dataUrl: dataUrl }));
+                }
+            });
         });
     </script>
 </body>

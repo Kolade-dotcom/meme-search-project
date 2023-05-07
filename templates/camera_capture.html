@@ -6,7 +6,7 @@
 
 {% block main %}
     <div>
-        <video id="video" width="640" height="480" autoplay></video>
+        <video id="video" width="640" height="480" autoplay muted></video>
     </div>
     <div>
         <button id="capture-btn">Capture</button>
@@ -14,4 +14,6 @@
     <div>
         <canvas id="canvas" width="640" height="480"></canvas>
     </div>
+
+    <div id="camera-result"></div>
 {% endblock %}

@@ -1,0 +1,8 @@
+<h4>Recognized as {{ name.title() }}</h4>
+
+<div class="related-memes">
+    <h4>Memes that are related:</h4>
+    {% for image_url in image_urls %}
+        <img src="{{ image_url }}" alt="a meme" class="img_fluid meme">
+    {% endfor %}
+</div>
