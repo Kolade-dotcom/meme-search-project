@@ -146,7 +146,7 @@ def logout():
 def register():
     if request.method == "POST":
         # get the username password and the confirmation from the form
-        username, password, confirmation = request.form.get("username"), request.form.get("password"), request.form.get("confirmation")
+        username, password, confirmation = map(request.form.get, ["username", "password", "confirmation"])
         # get username if it exist
         row = db.execute("SELECT * FROM users WHERE username = ?", username)
 

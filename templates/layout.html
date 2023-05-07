@@ -74,57 +74,35 @@
             xhr.send(formData);
         });
 
-        // Save the stream to sessionStorage when navigating away from the home page
-        window.addEventListener('beforeunload', () => {
-            if (stream) {
-                sessionStorage.setItem('cameraStream', JSON.stringify(stream));
-            }
-        });
+        
+        const video = document.querySelector('#camera-stream');
+        const captureBtn = document.querySelector('#capture-btn');
+        const canvas = document.querySelector('#canvas');
 
-        // get necessary elements for camera capture
-        document.addEventListener('DOMContentLoaded', () => {
-            const video = document.querySelector('#camera-stream');
-            const captureBtn = document.querySelector('#capture-btn');
-            const canvas = document.querySelector('#canvas');
-
-            if (savedStream) {
-                stream = JSON.parse(savedStream);
-                console.log('Retrieved saved stream:', stream);
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
                 video.srcObject = stream;
                 video.play();
-            } else {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                .then((s) => {
-                    console.log(s);
-                    stream = s;
-                    video.srcObject = stream;
-                    video.play();
-                })
-                .catch((err) => {
-                    console.error('Error accessing camera:', err);
-                    captureBtn.disabled = true;
-                });
-            }
-
-            // draw the current frame from the video element onto a canvas element on capture btn click
-            captureBtn.addEventListener('click', () => {
-                if (stream) {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-                    const dataUrl = canvas.toDataURL();
-                    
-                    // send the resulting data url as JSON object to the server and get the response text using a XMLHttpRequest
-                    xhr.open('POST', '/camera', true);
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    xhr.onreadystatechange = function() {
-                        if (this.readyState === 4 && this.status === 200) {
-                            document.querySelector('#camera-result').innerHTML = this.responseText;
-                        }
-                    };
-                    xhr.send(JSON.stringify({ dataUrl: dataUrl }));
-                }
+            })
+            .catch((err) => {
+                console.error('Error accessing camera:', err);
             });
+
+        // draw the current frame from the video element onto a canvas element on capture btn click
+        captureBtn.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL();
+
+            xhr.open('POST', '/camera', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                img.src = this.responseText;
+            }
+            };
+            xhr.send(JSON.stringify({ dataUrl: dataUrl }));
         });
     </script>
 </body>
